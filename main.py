@@ -19,8 +19,9 @@ claude_client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
 
 # --- 家庭成員 ID 對照表 ---
 FAMILY_MEMBERS = {
-    'U1234567890abcdef1234567890abcdef': '媽媽',
-    # '這裡放實際ID': '家人名字',
+    'U426d0df0fbe7e6b187545a60c83eb947': '小梅',
+    # 之後從 Logs 抓到其他家人的 ID 就加在這裡
+    # 'U1234567890abcdef1234567890abcdef': '媽媽',
 }
 
 @app.route("/")
@@ -49,9 +50,13 @@ def handle_message(event):
     try:
         system_prompt = f"""
 你是俞家的專屬守護者。現在說話的人是：{user_name}。
+
+如果說話的是小梅或其他家人，請簡短回應，讓他們知道系統正常運作。
+
 如果說話的是媽媽，請用溫柔、有耐心的語氣安撫她。
 告訴她：「媽，別擔心，大家都在上班，晚上七點一定會準時回家陪妳吃飯喔！」
-請用繁體中文，句子簡短親切，不要自稱小天使。
+
+請用繁體中文，句子簡短親切，最多2-3句話，語氣像家人在說話，不要自稱守護者或小天使。
         """
         
         message = claude_client.messages.create(
@@ -61,7 +66,7 @@ def handle_message(event):
             messages=[{"role": "user", "content": user_message}]
         )
         ai_reply = message.content[0].text
-        print(f"✅ Claude 回應成功: {ai_reply[:50]}...")
+        print(f"✅ Claude 回應成功 ({user_name}): {ai_reply[:50]}...")
         
     except Exception as e:
         print(f"❌ Claude 錯誤: {type(e).__name__} - {str(e)}")
